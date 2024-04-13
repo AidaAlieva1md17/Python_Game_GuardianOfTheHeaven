@@ -3,6 +3,7 @@ from settings import *
 from support import import_folder
 from support import display_message
 
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos, groups, obstacle_sprites, create_attack, destroy_attack):
         super().__init__(groups)
@@ -10,13 +11,13 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=pos)
         self.hitbox = self.rect.inflate(0, -26)
 
-        # graphics setup
+        # установка графики
         self.import_player_assets()
         self.status = 'down'
         self.frame_index = 0
         self.animation_speed = 0.15
 
-        # movement
+        # передвижение
         self.direction = pygame.math.Vector2()
         self.speed = 5
         self.attacking = False
@@ -24,7 +25,7 @@ class Player(pygame.sprite.Sprite):
         self.attack_time = None
         self.obstacle_sprites = obstacle_sprites
 
-        # weapon
+        # оружие
         self.create_attack = create_attack
         self.destroy_attack = destroy_attack
         self.weapon_index = 0
@@ -47,7 +48,7 @@ class Player(pygame.sprite.Sprite):
         if not self.attacking:
             keys = pygame.key.get_pressed()
 
-            # movement input
+            # задача движений
             if keys[pygame.K_UP]:
                 self.direction.y = -1
                 self.status = 'up'
@@ -66,13 +67,13 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.direction.x = 0
 
-            # attack input
+            # атака рукой
             if keys[pygame.K_SPACE]:
                 self.attacking = True
                 self.attack_time = pygame.time.get_ticks()
                 self.create_attack()
 
-            # magic input
+            # магическая атака
             if keys[pygame.K_LCTRL]:
                 self.attacking = True
                 self.attack_time = pygame.time.get_ticks()
@@ -89,11 +90,11 @@ class Player(pygame.sprite.Sprite):
 
                 self.weapon = list(weapon_data.keys())[self.weapon_index]
             if keys[pygame.K_k]:
-                display_message("I am god")
+                display_message("Божество: «Мой старый друг, я так долго ждал нашей встречи».")
 
     def get_status(self):
 
-        # idle status
+        # статсус пололежиния недвижемости
         if self.direction.x == 0 and self.direction.y == 0:
             if not 'idle' in self.status and not 'attack' in self.status:
                 self.status = self.status + '_idle'
@@ -157,7 +158,7 @@ class Player(pygame.sprite.Sprite):
         if self.frame_index >= len(animation):
             self.frame_index = 0
 
-        # set the image
+        # установка изображения
         self.image = animation[int(self.frame_index)]
         self.rect = self.image.get_rect(center=self.hitbox.center)
 

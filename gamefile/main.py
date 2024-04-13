@@ -19,7 +19,7 @@ def intro():
 class Game:
 	def __init__(self):
 
-		# general setup
+		# главная установка
 		pygame.init()
 		self.screen = pygame.display.set_mode((WIDTH,HEIGTH))
 		pygame.display.set_caption('Game by Snya')

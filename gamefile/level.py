@@ -11,16 +11,16 @@ from weapon import Weapon
 class Level:
 	def __init__(self):
 
-		# get the display surface 
+		# задача поверхности дисплея
 		self.display_surface = pygame.display.get_surface()
 
-		# sprite group setup
+		# установка групп спрайтов
 		self.visible_sprites = YSortCameraGroup()
 		self.obstacle_sprites = pygame.sprite.Group()
 
 		self.current_attack = None
 
-		# sprite setup
+		# установка спрайтов
 		self.create_map()
 
 	def create_map(self):
@@ -61,7 +61,7 @@ class Level:
 		self.current_attack = None
 
 	def run(self):
-		# update and draw the game
+		# обновление и отрисовка игры
 		self.visible_sprites.custom_draw(self.player)
 		self.visible_sprites.update()
 		debug(self.player.status)
@@ -70,25 +70,25 @@ class Level:
 class YSortCameraGroup(pygame.sprite.Group):
 	def __init__(self):
 
-		# general setup 
+		# главная установка
 		super().__init__()
 		self.display_surface = pygame.display.get_surface()
 		self.half_width = self.display_surface.get_size()[0] // 2
 		self.half_height = self.display_surface.get_size()[1] // 2
 		self.offset = pygame.math.Vector2()
 
-		# creating the floor
+		# создание пола
 		self.floor_surf = pygame.image.load('C:/Users/kgdjd/PycharmProjects/pythongame2/graphics/tilemap/ground.png').convert()
 		self.floor_rect = self.floor_surf.get_rect(topleft = (0,0))
 
 
 	def custom_draw(self,player):
 
-		# getting the offset 
+		# создание компенсации при передвижении
 		self.offset.x = player.rect.centerx - self.half_width
 		self.offset.y = player.rect.centery - self.half_height
 
-		# drawing the floor
+		# отрисовка пола
 		floor_offset_pos = self.floor_rect.topleft - self.offset
 		self.display_surface.blit(self.floor_surf,floor_offset_pos)
 

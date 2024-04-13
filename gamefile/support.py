@@ -23,6 +23,8 @@ def import_folder(path):
 
 def display_message(message):
 	screen = pygame.display.set_mode((WIDTH, HEIGTH))
+	main_background = pygame.image.load("background2.png")
+	screen.blit(main_background,(0,0))
 	font = pygame.font.Font("C:/Users/kgdjd/PycharmProjects/pythongame2/graphics/font/joystix.ttf")
 	timer = pygame.time.Clock()
 	snip = font.render("",True,"white")
@@ -46,6 +48,6 @@ def display_message(message):
 				pygame.quit()
 				return 1
 		snip = font.render(message[0:counter//speed],True,"white")
-		screen.blit(snip,(550,550))
+		screen.blit(snip,(330,600))
 		pygame.display.flip()
 	return -1
