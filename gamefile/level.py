@@ -6,6 +6,8 @@ from debug import debug
 from support import *
 from random import choice
 from weapon import Weapon
+from HealthBar import healthbar
+from enemy import Enemy
 
 
 class Level:
@@ -19,15 +21,24 @@ class Level:
 		self.obstacle_sprites = pygame.sprite.Group()
 
 		self.current_attack = None
+		self.attack_sprites = pygame.sprite.Group()
+		self.attackable_sprites = pygame.sprite.Group()
+		self.health = 5
+		cutscene1()
+		cutscene2()
 
+		self.createhealth = healthbar()
 		# установка спрайтов
 		self.create_map()
 
+
+
 	def create_map(self):
 		layouts = {
-			'boundary': import_csv_layout('C:/Users/kgdjd/PycharmProjects/pythongame2/map/Game_Unvision wall.csv'),
-			"trees": import_csv_layout("C:/Users/kgdjd/PycharmProjects/pythongame2/map/Game_Trees.csv"),
-			'object': import_csv_layout('C:/Users/kgdjd/PycharmProjects/pythongame2/map/Game_Objects.csv'),
+			'boundary':import_csv_layout("C:/Users/kgdjd/PycharmProjects/pythongame2/map/Tutorial._Unvision.csv"),
+			"trees": import_csv_layout("C:/Users/kgdjd/PycharmProjects/pythongame2/map/Tutorial._Деревья.csv"),
+			'object': import_csv_layout('C:/Users/kgdjd/PycharmProjects/pythongame2/map/Tutorial._Объекты.csv'),
+			"entities": import_csv_layout("C:/Users/kgdjd/PycharmProjects/pythongame2/map/Tutorial._Сущности.csv")
 		}
 		graphics = {
 			'trees': import_folder('C:/Users/kgdjd/PycharmProjects/pythongame2/graphics/trees'),
@@ -47,24 +58,44 @@ class Level:
 
 						if style == 'object':
 							surf = graphics['objects'][int(col)]
-							Tile((x,y),[self.visible_sprites,self.obstacle_sprites],'object',surf)
-
-		self.player = Player((300,400),[self.visible_sprites],self.obstacle_sprites,self.create_attack,self.destroy_attack)
-
-
+							Tile((x,y+128),[self.visible_sprites,self.obstacle_sprites],'object',surf)
+						if style == "entities":
+							if col == "2":
+								self.player = Player((x,y+64),[self.visible_sprites],self.obstacle_sprites,self.create_attack,self.destroy_attack)
+							if col == "0":
+								Enemy("demon",(x,y+64),[self.visible_sprites,self.attackable_sprites],self.obstacle_sprites,self.damage_player)
+							if col == "1":
+								Enemy("big_demon", (x, y+64), [self.visible_sprites,self.attackable_sprites], self.obstacle_sprites, self.damage_player)
 	def create_attack(self):
-		self.current_attack = Weapon(self.player,[self.visible_sprites])
+		self.current_attack = Weapon(self.player,[self.visible_sprites,self.attack_sprites])
 
 	def destroy_attack(self):
 		if self.current_attack:
 			self.current_attack.kill()
 		self.current_attack = None
-
+	def player_attack_logic(self):
+		if self.attack_sprites:
+			for attack_sprite in self.attack_sprites:
+				collision_sprites = pygame.sprite.spritecollide(attack_sprite,self.attackable_sprites,False)
+				if collision_sprites:
+					for target_sprite in collision_sprites:
+						if target_sprite.sprite_type == 'grass':
+							target_sprite.kill()
+						else:
+							target_sprite.get_damage(self.player,attack_sprite.sprite_type)
+	def damage_player(self,amount,attack_type):
+		if self.player.vulnerable:
+			self.health -= 1
+			self.createhealth.image = health_ani[self.health]
+			self.createhealth.render(self.display_surface)
+			self.player.vulnerable = False
+			self.player.hurt_time = pygame.time.get_ticks()
 	def run(self):
 		# обновление и отрисовка игры
 		self.visible_sprites.custom_draw(self.player)
 		self.visible_sprites.update()
-		debug(self.player.status)
+		self.visible_sprites.enemy_update(self.player)
+		self.createhealth.render(self.display_surface)
 
 
 class YSortCameraGroup(pygame.sprite.Group):
@@ -79,20 +110,24 @@ class YSortCameraGroup(pygame.sprite.Group):
 
 		# создание пола
 		self.floor_surf = pygame.image.load('C:/Users/kgdjd/PycharmProjects/pythongame2/graphics/tilemap/ground.png').convert()
-		self.floor_rect = self.floor_surf.get_rect(topleft = (0,0))
+		self.floor_rect = self.floor_surf.get_rect(topleft = (0,75))
 
+	def custom_draw(self, player):
 
-	def custom_draw(self,player):
-
-		# создание компенсации при передвижении
+		# getting the offset
 		self.offset.x = player.rect.centerx - self.half_width
 		self.offset.y = player.rect.centery - self.half_height
 
-		# отрисовка пола
+		# drawing the floor
 		floor_offset_pos = self.floor_rect.topleft - self.offset
-		self.display_surface.blit(self.floor_surf,floor_offset_pos)
+		self.display_surface.blit(self.floor_surf, floor_offset_pos)
 
 		# for sprite in self.sprites():
-		for sprite in sorted(self.sprites(),key = lambda sprite: sprite.rect.centery):
+		for sprite in sorted(self.sprites(), key=lambda sprite: sprite.rect.centery):
 			offset_pos = sprite.rect.topleft - self.offset
-			self.display_surface.blit(sprite.image,offset_pos)
+			self.display_surface.blit(sprite.image, offset_pos)
+
+	def enemy_update(self, player):
+		enemy_sprites = [sprite for sprite in self.sprites() if hasattr(sprite, 'sprite_type') and sprite.sprite_type == 'enemy']
+		for enemy in enemy_sprites:
+			enemy.enemy_update(player)

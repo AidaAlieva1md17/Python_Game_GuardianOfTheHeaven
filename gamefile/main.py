@@ -6,11 +6,14 @@ from button import ImageButton
 
 vid = Video("background1.mp4")
 vid.set_size((1280,720))
+
 def intro():
     while True:
         vid.draw(screen,(0,0))
         pygame.display.update()
         for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 vid.close()
                 main_menu()
@@ -22,7 +25,7 @@ class Game:
 		# главная установка
 		pygame.init()
 		self.screen = pygame.display.set_mode((WIDTH,HEIGTH))
-		pygame.display.set_caption('Game by Snya')
+		pygame.display.set_caption('Guardian of Heaven')
 		self.clock = pygame.time.Clock()
 
 		self.level = Level()
@@ -43,7 +46,7 @@ WIDTH, HEIGHT = 1280, 720
 MAX_FPS = 60;
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Menu test")
+pygame.display.set_caption("Guardian of Heaven")
 main_background = pygame.image.load("background1.gif")
 main_background  = pygame.transform.scale(main_background,(1280,720))
 
